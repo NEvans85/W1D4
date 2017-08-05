@@ -10,7 +10,7 @@ class Tile
     @bomb
   end
 
-  def flag?
+  def flagged?
     @flag
   end
 

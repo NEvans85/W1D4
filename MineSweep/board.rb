@@ -6,7 +6,7 @@ class Board
   end
 
   def self.random_board(num_bombs)
-    rand_board = Board.new(empty_grid)
+    rand_board = Board.new(easy_grid)
     bomb_pos = random_positions(num_bombs)
     bomb_pos.each do |pos|
       rand_board.place_bomb(pos)
@@ -14,7 +14,7 @@ class Board
     rand_board
   end
 
-  def self.empty_grid
+  def self.easy_grid
     Array.new(9) { Array.new(9) { Tile.new } }
   end
 
@@ -31,7 +31,7 @@ class Board
   def self.random_positions(amt)
     random_positions = []
     while amt > 0
-      temp_pos = [rand(9), rand(9)]
+      temp_pos = [rand(@grid.length), rand(@grid.length)]
       unless random_positions.include?(temp_pos)
         random_positions << temp_pos
         amt -= 1
@@ -48,13 +48,30 @@ class Board
     @grid.each_with_index do |row, r_idx|
       print "#{r_idx} |"
       row.each_index do |c_idx|
-        render_tile([r_idx, c_idx])
+        print "#{render_tile_at([r_idx, c_idx])}|"
       end
+      print "\n"
     end
   end
 
-  def render_tile(pos)
-    
+  def render_tile_at(pos)
+    if self[pos].revealed?
+      if self[pos].bomb?
+        'B'
+      elsif neightbors(pos).any? { |n_pos| self[n_pos].bomb? }
+        bomb_count(neighbors(pos)).to_s
+      else
+        '_'
+      end
+    elsif self[pos].flagged?
+      'F'
+    else
+      '*'
+    end
+  end
+
+  def bomb_count(arr_of_pos)
+    arr_of_pos.count { |pos| self[pos].bomb? }
   end
 
   def neighbors(pos)
